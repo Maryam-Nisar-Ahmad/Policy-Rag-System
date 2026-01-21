@@ -4,26 +4,22 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# Model
+from app.settings import storage_dir, docs_path, embedding_model, top_k
+
+# Singleton model (load once)
 _model = None
 
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        _model = SentenceTransformer(embedding_model)
     return _model
-
-
-#config
-top_k = 5
-storage_dir = "storage"
 
 
 def load_store():
     embeddings_path = os.path.join(storage_dir, "embeddings.npy")
-    docs_path = os.path.join(storage_dir, "documents.pkl")
 
-    #index not built yet→ return empty
+    # Index not built yet
     if not os.path.exists(embeddings_path) or not os.path.exists(docs_path):
         return None, None
 
@@ -35,10 +31,10 @@ def load_store():
     return embeddings, documents
 
 
-def search_docs(query, min_score=0.20):
+def search_docs(query):
     embeddings, documents = load_store()
 
-    # no index → no results
+    # No index → no results
     if embeddings is None or documents is None:
         return []
 
@@ -47,11 +43,9 @@ def search_docs(query, min_score=0.20):
 
     scores = cosine_similarity(query_vector, embeddings)[0]
 
+    # Always take top-k (NO hard cutoff)
     top_indices = scores.argsort()[-top_k:][::-1]
 
-    results = []
-    for i in top_indices:
-        if scores[i] >= min_score:
-            results.append(documents[i])
+    results = [documents[i] for i in top_indices]
 
     return results

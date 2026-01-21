@@ -14,7 +14,6 @@ from app.generation import generate_answer
 
 app = FastAPI(title="Policy RAG Service")
 
-# cros
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,20 +22,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#frontend
-# serve static frontend folder
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
 
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
-    with open("frontend/index.html", "r", encoding="utf-8") as f:
+    with open(os.path.join("frontend", "index.html"), "r", encoding="utf-8") as f:
         return f.read()
 
-# api
+
 @app.post("/api/index")
 def index_data():
     count = build_index()
     return {"message": f"indexed {count} chunks"}
+
 
 @app.post("/api/query", response_model=AnswerOut)
 def query(payload: QuestionIn):
@@ -47,6 +46,7 @@ def query(payload: QuestionIn):
 
     docs = search_docs(q)
 
+    # No retrieved context → immediate fallback
     if not docs:
         return AnswerOut(
             answer="Not enough information in the knowledge base.",
@@ -56,8 +56,12 @@ def query(payload: QuestionIn):
     context = "\n".join(d["content"] for d in docs)
     answer = generate_answer(context, q)
 
-    if answer.strip() == "Not enough information in the knowledge base.":
-        return AnswerOut(answer=answer, sources=[])
+    # 🔴 STRICT TASK RULE ENFORCEMENT
+    if answer == "__UNSUPPORTED__":
+        return AnswerOut(
+            answer="Not enough information in the knowledge base.",
+            sources=[]
+        )
 
     sources = [
         SourceOut(

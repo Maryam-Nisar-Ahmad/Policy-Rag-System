@@ -12,7 +12,6 @@ from app.settings import (
     chunk_overlap,
 )
 
-
 def split_text(text, size, overlap):
     chunks = []
     i = 0
@@ -47,6 +46,9 @@ def load_documents():
 def build_index():
     documents = load_documents()
     texts = [d["content"] for d in documents]
+
+    if not texts:
+        return 0
 
     model = SentenceTransformer(embedding_model)
     embeddings = model.encode(texts, show_progress_bar=True)
