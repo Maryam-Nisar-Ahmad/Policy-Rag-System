@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>University Policy RAG</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 60px auto;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #475569;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+        }
+
+        button {
+            padding: 12px 18px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        button.secondary {
+            background: #475569;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .source {
+            margin-bottom: 14px;
+            font-size: 14px;
+            color: #334155;
+            border-left: 3px solid #2563eb;
+            padding-left: 10px;
+        }
+
+        .source span {
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .status {
+            margin-top: 12px;
+            padding: 10px;
+            background: #dbeafe;
+            border-left: 4px solid #2563eb;
+            color: #1e3a8a;
+            border-radius: 6px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h1>University Policy Assistant</h1>
+    <p class="subtitle">
+        Retrieval-Augmented Question Answering over official university policies
+    </p>
+
+    <textarea id="question" placeholder="Ask a question (e.g., What happens if a student commits plagiarism?)"></textarea>
+
+    <div class="buttons">
+        <button id="indexBtn" class="secondary" onclick="buildIndex()">Build Index</button>
+        <button onclick="askQuestion()">Ask Question</button>
+    </div>
+
+    <div id="statusBox" class="status"></div>
+
+    <div id="answerBox" class="card hidden">
+        <h3>Answer</h3>
+        <p id="answerText"></p>
+    </div>
+
+    <div id="sourcesBox" class="card hidden">
+        <h3>Sources</h3>
+        <div id="sourcesList"></div>
+    </div>
+</div>
+
+<script>
+    const API_BASE = "";
+
+    function showStatus(msg) {
+        const box = document.getElementById("statusBox");
+        box.innerText = msg;
+        box.style.display = "block";
+        setTimeout(() => box.style.display = "none", 3000);
+    }
+
+    async function buildIndex() {
+        const btn = document.getElementById("indexBtn");
+        btn.disabled = true;
+        btn.innerText = "Indexing...";
+
+        try {
+            const res = await fetch(API_BASE + "/api/index", { method: "POST" });
+            const data = await res.json();
+            showStatus(data.message);
+        } catch (err) {
+            showStatus("Indexing failed. Please try again.");
+        }
+
+        btn.disabled = false;
+        btn.innerText = "Build Index";
+    }
+
+    async function askQuestion() {
+        const question = document.getElementById("question").value.trim();
+
+        if (!question) {
+            showStatus("Please enter a question.");
+            return;
+        }
+
+        const res = await fetch(API_BASE + "/api/query", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ question })
+        });
+
+        const data = await res.json();
+
+        // Answer
+        document.getElementById("answerText").innerText = data.answer;
+        document.getElementById("answerBox").classList.remove("hidden");
+
+        // Sources (ALL sources, clean)
+        const sourcesBox = document.getElementById("sourcesBox");
+        const list = document.getElementById("sourcesList");
+        list.innerHTML = "";
+
+        if (data.sources && data.sources.length > 0) {
+            data.sources.forEach(s => {
+                const div = document.createElement("div");
+                div.className = "source";
+                div.innerHTML =
+                    `<span>${s.document}</span><br>${s.preview.substring(0, 180)}...`;
+                list.appendChild(div);
+            });
+            sourcesBox.classList.remove("hidden");
+        } else {
+            sourcesBox.classList.add("hidden");
+        }
+    }
+</script>
+</body>
+</html>
