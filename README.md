@@ -61,13 +61,13 @@ RAG-APP/
 ├── frontend/
 │   └── index.html
 │
-├── storage/
+├── storage/        # created at runtime (gitignored)
 │   ├── documents.pkl
-│   ├── embeddings.npy
-│   └── index_cosine.npy
+│   └── embeddings.npy
 │
 ├── requirements.txt
 └── README.md
+
 ```
 
 ---
@@ -196,15 +196,15 @@ Backend runs at:
 http://127.0.0.1:8000
 ```
 
-## 6️⃣ Run frontend
+## 6️⃣ Access frontend locally
 
-Just open:
+After starting the backend, open the following URL in your browser:
 
 ```
-frontend/index.html
+http://127.0.0.1:8000/
 ```
 
-in the browser.
+The frontend is served automatically by the FastAPI backend.
 
 ---
 
@@ -217,7 +217,7 @@ in the browser.
 ## 2️⃣ Create a new Web Service
 
 * Connect your GitHub repo
-* Environment: **Python 3.14.2**
+* Environment: **Python 3.10+**
 * Start command:
 
   ```
@@ -239,13 +239,10 @@ Render will automatically:
 
 ## 4️⃣ Visit your frontend
 
-If using GitHub Pages, frontend lives at:
+The frontend is served directly by the FastAPI backend at the root URL (`/`).
 
-```
-https://yourusername.github.io/Policy-Rag-System/frontend/index.html
-```
-
-Or you can upload the frontend separately to Render static hosting.
+Once deployed, open the Render service URL in your browser to access the full application.
+No separate frontend hosting is required.
 
 ---
 
@@ -331,7 +328,7 @@ Use these to demonstrate evaluation quality:
 ✔ Low relevance → returns fallback message
 ✔ Strict grounding → no hallucinations
 ✔ All sources included
-✔ UI loading indicators
+✔ Button state handling during indexing
 
 ---
 
