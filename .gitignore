@@ -2,8 +2,9 @@
 venv/
 
 
-# vector storage
-storage/
+# vector storage (prebuilt for deployment)
+# storage/
+
 
 
 # python cache
