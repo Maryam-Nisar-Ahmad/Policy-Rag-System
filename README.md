@@ -292,13 +292,14 @@ Ask a question to the RAG system.
 ```
 
 ---
-“Frontend UI section”
+# Frontend UI section
+
 <img width="1020" height="450" alt="image" src="https://github.com/user-attachments/assets/e2949575-833d-4c08-939f-312b85c853fa" />
 
-“Knowledge Base + Indexing”
+# Knowledge Base + Indexing
 <img width="1025" height="439" alt="image" src="https://github.com/user-attachments/assets/a53b676c-b334-496a-bf24-3924038a62ed" />
 
-“Retrieval + Generation Pipeline”
+# Retrieval + Generation Pipeline
 <img width="1011" height="914" alt="image" src="https://github.com/user-attachments/assets/87f9c27d-2f4e-41df-846b-3e7338642e65" />
 
 ---
