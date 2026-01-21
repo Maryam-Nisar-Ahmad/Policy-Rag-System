@@ -12,39 +12,31 @@ from app.indexing import build_index
 from app.retrieval import search_docs
 from app.generation import generate_answer
 
-
 app = FastAPI(title="Policy RAG Service")
 
-# cors
+# cros
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # safe for demo
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 #frontend
-# serve frontend folder
+# serve static frontend folder
 app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
-
 
 @app.get("/", response_class=HTMLResponse)
 def serve_frontend():
-    """
-    Serves the main frontend UI
-    """
-    frontend_path = os.path.join("frontend", "index.html")
-    with open(frontend_path, "r", encoding="utf-8") as f:
+    with open("frontend/index.html", "r", encoding="utf-8") as f:
         return f.read()
 
-
-#API
+# api
 @app.post("/api/index")
 def index_data():
     count = build_index()
     return {"message": f"indexed {count} chunks"}
-
 
 @app.post("/api/query", response_model=AnswerOut)
 def query(payload: QuestionIn):
@@ -64,7 +56,6 @@ def query(payload: QuestionIn):
     context = "\n".join(d["content"] for d in docs)
     answer = generate_answer(context, q)
 
-    #Critical rule (no sources if unsupported )
     if answer.strip() == "Not enough information in the knowledge base.":
         return AnswerOut(answer=answer, sources=[])
 
