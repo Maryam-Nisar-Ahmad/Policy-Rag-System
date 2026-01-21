@@ -127,10 +127,10 @@ If the system doesn’t find enough relevant context:
 
 ---
 
-# 🌍 Live Demo URL (replace after deployment)
+# 🌍 Live Demo URL
 
 ```
-https://policy-rag-system-rxn0.onrender.com/
+https://policy-rag-system-rxn0.onrender.com
 ```
 
 ---
